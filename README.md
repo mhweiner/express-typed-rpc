@@ -5,7 +5,7 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![SemVer](https://img.shields.io/badge/SemVer-2.0.0-blue)]()
 
-Simple express middleware to easily create a fully-typed JSON API over HTTP on both the server-side and client-side.  This project is inspired by tRPC, but focuses on simplicity and easy integration.
+Simple express middleware to easily create a fully-typed JSON API over HTTP on both the server-side and client-side.  This project is inspired by tRPC, but much simpler.
 
 **Crazy Simple and Easy to Use 😃**
 
