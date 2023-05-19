@@ -6,7 +6,7 @@ export type ClientOptions = {
     onResponseError?: (response: Response) => void
 };
 
-// We're purposely not putting any type alias for the client route to aid in better IDE intellisense. 
+// We're purposely not putting any type alias for the client route to aid in better IDE intellisense.
 // Otherwise, the TS compiler/autocomplete might suggest the type alias instead of the underlying (initial) type.
 
 export async function client<A extends {
