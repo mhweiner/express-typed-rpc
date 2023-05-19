@@ -22,7 +22,7 @@ Simple express middleware to easily create a fully-typed JSON API over HTTP on b
 - Take advantage of Typescript and turn your runtime errors into compiler-time errors! Inputs and outputs are both fully typed.
 - Easily unit-test your express handlers since they are now no longer dependent on `req` and `res`
 
-## Installation (server)
+## Installation
 
 ```bash
 npm i express-typed-rpc
@@ -64,8 +64,9 @@ app.listen(process.env.PORT || 3000);
 client.ts
 ```typescript
 import { client } from 'express-typed-rpc';
-import { API } from '@yourorg/server' // your private package, imports
-                                      // type only, no code!
+import { API } from '@yourorg/server' // You must publish your backend as a private repo
+                                      // (Github Packages is recommended). This imports
+                                      // the type only.
 
 // Everything is now fully typed! Enjoy IDE autocompletion, validation, 
 // and compile-time TypeScript errors.
