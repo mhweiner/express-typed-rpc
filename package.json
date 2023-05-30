@@ -1,6 +1,6 @@
 {
   "name": "express-typed-rpc",
-  "version": "0.0.0-semantic-release",
+  "version": "0.0.0-dev",
   "description": "Easily create a fully-typed Express JSON RPC API over HTTP. No code generation step required. Inspired by tRPC, but much simpler. ",
   "license": "MIT",
   "author": "Marc H. Weiner <mhweiner234@gmail.com> (https://mhweiner.com)",
@@ -67,5 +67,6 @@
     "sinon": "^15.0.4",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
-  }
+  },
+  "dependencies": {}
 }
