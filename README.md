@@ -1,5 +1,7 @@
 # express-typed-rpc
 
+WARNING! This repo is still a work in progress. README isn't finished, and this repo is still in beta. Read source code if you want to play around, and please contribute if you're interested ❤️
+
 [![build status](https://github.com/mhweiner/express-typed-rpc/actions/workflows/release.yml/badge.svg)](https://github.com/mhweiner/express-typed-rpc/actions)
 [![semantic-release](https://img.shields.io/badge/semantic--release-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
