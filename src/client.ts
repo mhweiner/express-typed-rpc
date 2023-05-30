@@ -1,6 +1,7 @@
 import toResult from './lib/toResult';
 
 export type ClientOptions = {
+    endpoint: string
     fetchOptions?: Omit<RequestInit, 'method' | 'body'>
     onError?: (error: any) => void
     onResponseError?: (response: Response) => void
@@ -19,7 +20,7 @@ export async function client<A extends {
     options?: ClientOptions
 ): Promise<A['output']> {
 
-    const [err, resp] = await toResult(fetch(name, {
+    const [err, resp] = await toResult(fetch(`${options?.endpoint}${name}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
