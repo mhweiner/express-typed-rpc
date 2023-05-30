@@ -1,7 +1,6 @@
 import type {NextFunction, Request, Response, Router} from 'express';
 
 type UnwrapPromise<T> = T extends Promise<infer U> ? U : T;
-type NullIfUnknown<T> = T extends unknown ? null : T;
 
 export type Resolver<I, O, C> = (input: I, context: C) => O;
 export type ExpressContextResolver<C> = (req: Request) => C;
@@ -12,7 +11,7 @@ export type ExpressContextResolver<C> = (req: Request) => C;
 
 type InferResolver<N, R> = R extends Resolver<infer I, infer O, any> ? {
     name: N
-    input: NullIfUnknown<I>
+    input: I
     output: UnwrapPromise<O>
 } : never;
 
