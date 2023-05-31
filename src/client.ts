@@ -20,7 +20,7 @@ export async function client<A extends {
     options?: ClientOptions
 ): Promise<A['output']> {
 
-    const [err, resp] = await toResult(fetch(`${options?.endpoint}${name}`, {
+    const [err, resp] = await toResult(fetch(`${options?.endpoint}/${name}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
