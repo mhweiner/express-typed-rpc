@@ -26,7 +26,7 @@ export async function client<A extends {
             'Content-Type': 'application/json',
             ...options?.fetchOptions?.headers,
         },
-        body: JSON.stringify(input),
+        body: JSON.stringify(input || {}),
         ...options?.fetchOptions,
     }));
 
