@@ -10,6 +10,7 @@ export type ClientOptions = {
 // We're purposely not putting any type alias for the client route to aid in better IDE intellisense.
 // Otherwise, the TS compiler/autocomplete might suggest the type alias instead of the underlying (initial) type.
 
+// eslint-disable-next-line max-lines-per-function
 export async function client<A extends {
     name: string
     input: any
@@ -48,8 +49,12 @@ export async function client<A extends {
 
     }
 
-    const data = await resp.json();
+    const data = await resp.text();
 
-    return data as A['output'];
+    if (data.trim().length) {
+
+        return JSON.parse(data) as A['output'];
+
+    }
 
 }
