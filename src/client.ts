@@ -9,16 +9,14 @@ export type ClientOptions = {
 
 export class Non200Response<T> extends Error {
 
-    message: string;
     status: number;
     response: T;
 
-    constructor(message: string, status: number, response: T) {
+    constructor(status: number, response: T) {
 
-        super(message || 'Non200Response');
+        super('Non200Response');
         Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
         this.name = 'Non200Response';
-        this.message = message;
         this.status = status;
         this.response = response;
 
@@ -65,7 +63,7 @@ export async function client<A extends {
 
     if (data.trim().length) {
 
-        const [, result] = invokeOrFail(JSON.parse(data));
+        const [, result] = invokeOrFail(() => JSON.parse(data));
 
         responseData = result || {};
 
@@ -73,7 +71,7 @@ export async function client<A extends {
 
     if (!resp.ok) {
 
-        throw new Non200Response(responseData.message, resp.status, responseData as ErrorResponseType);
+        throw new Non200Response(resp.status, responseData as ErrorResponseType);
 
     }
 
