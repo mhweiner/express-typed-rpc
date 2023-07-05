@@ -20,6 +20,11 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
+      - name: Install CI/CD tools
+        run: |
+          npm i -g semantic-release @semantic-release/exec
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - run: npm ci
       - run: npm run lint
       - run: npm test
