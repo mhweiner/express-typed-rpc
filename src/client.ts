@@ -59,13 +59,13 @@ export async function client<A extends {
     }
 
     const data = await resp.text();
-    let responseData: any = {};
+    let responseData: any;
 
     if (data.trim().length) {
 
         const [, result] = invokeOrFail(() => JSON.parse(data));
 
-        responseData = result || {};
+        responseData = result;
 
     }
 
