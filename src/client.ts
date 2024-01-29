@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 import {invokeOrFail} from './lib/invokeOrFail';
 import toResult from './lib/toResult';
 
@@ -24,11 +25,10 @@ export class Non200Response<T> extends Error {
 
 }
 
-
-// We're purposely not putting any type alias for the client route to aid in better IDE intellisense.
-// Otherwise, the TS compiler/autocomplete might suggest the type alias instead of the underlying (initial) type.
-
-// eslint-disable-next-line max-lines-per-function
+/**
+ * We're purposely not putting any type alias for the client route to aid in better IDE intellisense.
+ * Otherwise, the TS compiler/autocomplete might suggest the type alias instead of the underlying (initial) type.
+*/
 export async function client<A extends {
     name: string
     input: any
