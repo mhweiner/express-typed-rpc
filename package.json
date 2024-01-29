@@ -4,8 +4,6 @@
   "description": "Easily create a fully-typed Express JSON RPC API over HTTP. No code generation step required. Inspired by tRPC, but much simpler. ",
   "license": "MIT",
   "author": "Marc H. Weiner <mhweiner234@gmail.com> (https://mhweiner.com)",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "files": [
     "dist",
     "package.json",

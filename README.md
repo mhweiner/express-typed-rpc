@@ -1,6 +1,6 @@
 # express-typed-rpc
 
-WARNING! This repo is still a work in progress. README isn't finished, and this repo is still in beta. Read source code if you want to play around, and please contribute if you're interested ❤️
+WARNING! This repo is still a work in progress. Please contribute if you're interested ❤️
 
 [![build status](https://github.com/mhweiner/express-typed-rpc/actions/workflows/release.yml/badge.svg)](https://github.com/mhweiner/express-typed-rpc/actions)
 [![semantic-release](https://img.shields.io/badge/semantic--release-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
@@ -32,55 +32,72 @@ npm i express-typed-rpc
  
 ## Example Usage
 
-server.ts
+### server.ts
 ```typescript
 import express from 'express';
 import { Router } from 'express';
-import { createAPI, InferAPI } from 'express-typed-rpc';
+import { createAPI, InferAPI } from 'express-typed-rpc/dist/server';
 
-// Define your Express router
 const apiRouter = Router();
 
-// Define your API
 const api = {
-    greet: (name: string, context: any): string => `Hello, ${name}!`,
-    multiply: (numbers: {a: number, b: number}, context: any): number => numbers.a * numbers.b
+    greet: (name: string): string => `Hello, ${name}!`,
+    multiply: (args: {a: number, b: number}): number => args.a * args.b
 };
 
-// Create API using the provided function and api object
 createAPI(apiRouter, api);
 
 // Export type for use on client
 export type API = InferAPI<typeof api>;
 
-// Initialize Express application
 const app = express();
 
-// Use the router as middleware at the /api path
 app.use('/api', apiRouter);
-
-// Start the Express server
 app.listen(process.env.PORT || 3000);
 ```
 
-client.ts
+### dom-client.ts
 ```typescript
-import { client } from 'express-typed-rpc';
-import { API } from '@yourorg/server' // You must publish your backend as a private repo
-                                      // (Github Packages is recommended). This imports
-                                      // the type only.
-
-// Everything is now fully typed! Enjoy IDE autocompletion, validation, 
-// and compile-time TypeScript errors.
+import {client} from 'express-typed-rpc/dist/client';
+import type {API} from '@yourorg/server' 
 
 const greet = async (name: string): Promise<string> => {
-    return await client<API['greet']>('greet', name);
+    return await client<API['greet']>('greet', name, {
+        endpoint: 'https://api.yourdomain.com',
+        options: {} // fetch options (window.RequestInit)
+    });
 };
 
 const multiply = async (numbers: {a: number, b: number}): Promise<number> => {
-    return await client<API['multiply']>('multiply', numbers);
+    return await client<API['multiply']>('multiply', numbers, {
+        endpoint: 'https://api.yourdomain.com',
+        options: {} // fetch options (window.RequestInit)
+    });
 };
 ```
+
+### node-client.ts
+```typescript
+import {client} from 'express-typed-rpc/dist/client-node';
+import type {API} from '@yourorg/server'
+
+const greet = async (name: string): Promise<string> => {
+    return await client<API['greet']>('greet', name, {
+        endpoint: 'https://api.yourdomain.com',
+        options: {} // https.RequestOptions
+    });
+};
+
+const multiply = async (numbers: {a: number, b: number}): Promise<number> => {
+    return await client<API['multiply']>('multiply', numbers, {
+        endpoint: 'https://api.yourdomain.com',
+        options: {} // https.RequestOptions
+    });
+};
+```
+
+You must publish your backend as a private repo (Github Packages is recommended). Only the Typescript types are exported/imported and does not affect runtime. You will enjoy the same performance but with IDE autocompletion, validation, 
+and compile-time TypeScript errors.
 
 ## Contribution
 
