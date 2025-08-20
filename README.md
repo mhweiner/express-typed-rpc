@@ -1,119 +1,161 @@
 # express-typed-rpc
 
-WARNING! This repo is still a work in progress. Please contribute if you're interested ❤️
+A type-safe RPC library for Express.js that provides full TypeScript support for client-server communication.
 
-[![build status](https://github.com/mhweiner/express-typed-rpc/actions/workflows/release.yml/badge.svg)](https://github.com/mhweiner/express-typed-rpc/actions)
-[![semantic-release](https://img.shields.io/badge/semantic--release-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
-[![SemVer](https://img.shields.io/badge/SemVer-2.0.0-blue)]()
+## Features
 
-Simple express middleware to easily create a fully-typed JSON API over HTTP on both the server-side and client-side.  This project is inspired by tRPC, but much simpler.
-
-**Crazy Simple and Easy to Use 😃**
-
-- Works out of the box with express and Typescript
-- No magic or black boxes
-- No code generation or build steps! Works 100% statically via Typescript's `infer` keyword
-- No writing type specifications
-- Minimal configuration
-- Client included!
-- Tiny codebase (~50LOC) with minimal dependencies. Written in clean, simple Typescript. Contribute or fork and make it your own.
-
-**Make Your Code More Reliable and Go Faster! 🚀**
-
-- Take advantage of Typescript and turn your runtime errors into compiler-time errors! Inputs and outputs are both fully typed.
-- Easily unit-test your express handlers since they are now no longer dependent on `req` and `res`
+- **Type Safety**: Full TypeScript support with automatic type inference
+- **Date Object Support**: Automatic serialization/deserialization of Date objects
+- **Error Handling**: Built-in error handling with custom error types
+- **Flexible Context**: Support for request context injection
+- **Lightweight**: Minimal dependencies and overhead
 
 ## Installation
 
 ```bash
-npm i express-typed-rpc
+npm install express-typed-rpc
 ```
- 
-## Example Usage
 
-### server.ts
+## Basic Usage
+
+### Server Setup
+
 ```typescript
 import express from 'express';
-import { Router } from 'express';
-import { createAPI, InferAPI } from 'express-typed-rpc/dist/server';
-
-const apiRouter = Router();
-
-const api = {
-    greet: (name: string): string => `Hello, ${name}!`,
-    multiply: (args: {a: number, b: number}): number => args.a * args.b
-};
-
-createAPI(apiRouter, api);
-
-// Export type for use on client
-export type API = InferAPI<typeof api>;
+import {createAPI} from 'express-typed-rpc';
 
 const app = express();
+const router = express.Router();
 
-app.use('/api', apiRouter);
-app.listen(process.env.PORT || 3000);
+// Define your API
+const api = {
+  hello: (name: string): string => `Hello, ${name}!`,
+  getCurrentTime: (): Date => new Date(), // Date objects are automatically handled
+  getUser: (id: number): {id: number, name: string, createdAt: Date} => ({
+    id,
+    name: 'John Doe',
+    createdAt: new Date()
+  })
+};
+
+// Create the API routes
+createAPI(router, api);
+
+app.use('/api', router);
+app.listen(3000);
 ```
 
-### dom-client.ts
+### Client Usage
+
 ```typescript
-import {client} from 'express-typed-rpc/dist/client';
-import type {API} from '@yourorg/server' 
+import {client} from 'express-typed-rpc';
 
-const greet = async (name: string): Promise<string> => {
-    return await client<API['greet']>('greet', name, {
-        endpoint: 'https://api.yourdomain.com',
-        options: {} // fetch options (window.RequestInit)
-    });
-};
+// Type-safe client calls
+const result = await client<typeof api.hello>('hello', 'World');
+console.log(result); // "Hello, World!"
 
-const multiply = async (numbers: {a: number, b: number}): Promise<number> => {
-    return await client<API['multiply']>('multiply', numbers, {
-        endpoint: 'https://api.yourdomain.com',
-        options: {} // fetch options (window.RequestInit)
-    });
-};
+const time = await client<typeof api.getCurrentTime>('getCurrentTime');
+console.log(time instanceof Date); // true - Date objects are preserved!
+
+const user = await client<typeof api.getUser>('getUser', 123);
+console.log(user.createdAt instanceof Date); // true
 ```
 
-### node-client.ts
+## Date Object Handling
+
+The library automatically handles Date objects by:
+
+1. **Serialization**: Converting Date objects to a special format during JSON serialization
+2. **Deserialization**: Converting the special format back to Date objects on the client side
+
+This means you can work with Date objects naturally without manual conversion:
+
 ```typescript
-import {client} from 'express-typed-rpc/dist/client-node';
-import type {API} from '@yourorg/server'
-
-const greet = async (name: string): Promise<string> => {
-    return await client<API['greet']>('greet', name, {
-        endpoint: 'https://api.yourdomain.com',
-        options: {} // https.RequestOptions
-    });
+// Server
+const api = {
+  getEvents: (): {id: number, date: Date}[] => [
+    {id: 1, date: new Date('2023-12-25')},
+    {id: 2, date: new Date('2023-12-26')}
+  ]
 };
 
-const multiply = async (numbers: {a: number, b: number}): Promise<number> => {
-    return await client<API['multiply']>('multiply', numbers, {
-        endpoint: 'https://api.yourdomain.com',
-        options: {} // https.RequestOptions
-    });
+// Client
+const events = await client<typeof api.getEvents>('getEvents');
+events.forEach(event => {
+  console.log(event.date instanceof Date); // true
+  console.log(event.date.toLocaleDateString()); // Works as expected
+});
+```
+
+## Advanced Usage
+
+### With Context
+
+```typescript
+import {createAPI, ExpressContextResolver} from 'express-typed-rpc';
+
+interface Context {
+  userId: string;
+  isAdmin: boolean;
+}
+
+const contextResolver: ExpressContextResolver<Context> = (req) => ({
+  userId: req.headers['user-id'] as string,
+  isAdmin: req.headers['is-admin'] === 'true'
+});
+
+const api = {
+  getUserData: (input: string, context: Context) => {
+    if (!context.isAdmin) {
+      throw new Error('Unauthorized');
+    }
+    return `Data for user ${context.userId}: ${input}`;
+  }
 };
+
+createAPI(router, api, contextResolver);
 ```
 
-You must publish your backend as a private repo (Github Packages is recommended). Only the Typescript types are exported/imported and does not affect runtime. You will enjoy the same performance but with IDE autocompletion, validation, 
-and compile-time TypeScript errors.
+### Error Handling
 
-## Contribution
+```typescript
+import {client, Non200Response} from 'express-typed-rpc';
 
-Please contribute to this project! Issue a PR against `main` and request review. 
-
-- Please test your work thoroughly.
-- Make sure all tests pass with appropriate coverage.
-
-### How to build locally
-
-```bash
-npm i
+try {
+  const result = await client('someEndpoint', data);
+} catch (error) {
+  if (error instanceof Non200Response) {
+    console.log('Server error:', error.status, error.response);
+  } else {
+    console.log('Network error:', error);
+  }
+}
 ```
 
-### Running tests
+## API Reference
 
-```shell script
-npm test
-```
+### `createAPI(router, api, contextResolver?)`
+
+Creates Express routes for the provided API.
+
+- `router`: Express Router instance
+- `api`: Object containing resolver functions
+- `contextResolver?`: Optional function to create request context
+
+### `client<A>(name, input, options?)`
+
+Makes a type-safe RPC call.
+
+- `name`: API endpoint name
+- `input`: Input data for the endpoint
+- `options?`: Optional client configuration
+
+### Types
+
+- `Resolver<I, O, C>`: Function type for API endpoints
+- `ExpressContextResolver<C>`: Function type for context creation
+- `InferAPI<T>`: Utility type to infer API types
+
+## License
+
+MIT

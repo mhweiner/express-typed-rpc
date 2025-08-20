@@ -1,4 +1,4 @@
-import {test} from 'hoare';
+import {test} from 'kizu';
 
 import {Router} from 'express';
 import {InferAPI, createAPI} from './server';

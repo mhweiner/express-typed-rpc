@@ -1,4 +1,5 @@
 import type {NextFunction, Request, Response, Router} from 'express';
+import {serializeResponse} from './lib/serializer';
 
 type UnwrapPromise<T> = T extends Promise<infer U> ? U : T;
 
@@ -34,7 +35,7 @@ function createAction(
             const context = contextResolver ? await contextResolver(req) : {};
             const response = await resolver(req.body, context);
 
-            res.json(response);
+            res.json(serializeResponse(response));
 
         } catch (e) {
 

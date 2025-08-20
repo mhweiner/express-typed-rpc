@@ -1,6 +1,7 @@
 /* eslint-disable max-lines-per-function */
 import {invokeOrFail} from './lib/invokeOrFail';
 import toResult from './lib/toResult';
+import {deserializeResponse} from './lib/serializer';
 
 export type ClientOptions = {
     endpoint: string
@@ -65,7 +66,7 @@ export async function client<A extends {
 
         const [, result] = invokeOrFail(() => JSON.parse(data));
 
-        responseData = result;
+        responseData = deserializeResponse(result);
 
     }
 
