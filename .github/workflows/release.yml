@@ -1,34 +1,32 @@
-name: release
+name: Release
 on:
   push:
-    branches: [main]
-  workflow_dispatch:
+    branches:
+      - main
+      - next
 jobs:
   release:
-    name: release
+    name: Release
     runs-on: ubuntu-latest
+    concurrency: 
+      group: deploy-${{github.ref}}
+      cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
       - uses: actions/setup-node@v4
         with:
           node-version: latest
-          registry-url: https://npm.pkg.github.com/
-      - name: Cache Node.js modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      - name: Install CI/CD tools
-        run: |
-          npm i -g semantic-release @semantic-release/exec
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          registry-url: "https://registry.npmjs.org"
+          cache: 'npm'
       - run: npm ci
+      - run: npm run build
       - run: npm run lint
-      - run: npm test
-      - env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npx semantic-release
+      - run: npm run test
+      - run: npm run test:int
+      - run: npx autorel
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
